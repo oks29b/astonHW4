@@ -41,8 +41,14 @@ public class ConnectionPool {
         return connectionPool;
     }
 
-    public Connection getConnection() throws SQLException {
-        return pooledDataSource.getConnection();
+    public Connection getConnection(){
+        try{
+            return pooledDataSource.getConnection();
+        }catch (SQLException e){
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
     }
 
     public static void closePool(){

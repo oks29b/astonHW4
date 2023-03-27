@@ -4,26 +4,26 @@ import org.example.config.db.ConnectionPool;
 import org.example.model.entity.Department;
 import org.example.model.repository.DepartmentRepository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DepartmentRepositoryImpl implements DepartmentRepository {
     @Override
-    public void save(Department entity){
-        try{
-            Connection connection = ConnectionPool.getInstance().getConnection();
-            String sql2 = "insert into departments (name, max_salary, min_salary) values (?, ?, ?)";
-            PreparedStatement preparedStatement2 = connection.prepareStatement(sql2);
-            preparedStatement2.setString(1, entity.getName());
-            preparedStatement2.setInt(2, entity.getMaxSalary());
-            preparedStatement2.setInt(3, entity.getMinSalary());
-            preparedStatement2.executeUpdate();
-            preparedStatement2.close();
-            connection.close();
+    public Department save(Department entity){
+        String sql2 = "insert into departments (name, max_salary, min_salary) values (?, ?, ?)";
+        try(Connection connection = ConnectionPool.getInstance().getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql2, Statement.RETURN_GENERATED_KEYS)
+        ){
+            preparedStatement.setString(1, entity.getName());
+            preparedStatement.setInt(2, entity.getMaxSalary());
+            preparedStatement.setInt(3, entity.getMinSalary());
+            preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            if(resultSet.next()){
+                entity.setId(resultSet.getInt(1));
+            }
+            return entity;
         }catch (SQLException e){
             throw new RuntimeException();
         }

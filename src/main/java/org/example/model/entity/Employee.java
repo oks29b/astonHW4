@@ -1,27 +1,23 @@
 package org.example.model.entity;
 
+import java.util.List;
+
 public class Employee{
     private Integer id;
     private String name;
     private String surname;
     private int salary;
-    private Department department;
+    private List<Department> departments;
+    private List<BankAccount> bankAccounts;
 
     public Employee() {
     }
 
-    public Employee(String name, String surname, Integer salary, Department department) {
-        this.name = name;
-        this.surname = surname;
-        this.salary = salary;
-        this.department = department;
-    }
-
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -49,12 +45,20 @@ public class Employee{
         this.salary = salary;
     }
 
-    public Department getDepartment() {
-        return department;
+    public List<Department> getDepartments() {
+        return departments;
     }
 
-    public void setDepartment(Department department) {
-        this.department = department;
+    public void setDepartments(List<Department> departments) {
+        this.departments = departments;
+    }
+
+    public List<BankAccount> getBankAccounts() {
+        return bankAccounts;
+    }
+
+    public void setBankAccounts(List<BankAccount> bankAccounts) {
+        this.bankAccounts = bankAccounts;
     }
 
     @Override
@@ -64,7 +68,6 @@ public class Employee{
                 ", name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
                 ", salary=" + salary +
-                ", department=" + department +
                 '}';
     }
 }

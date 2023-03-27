@@ -6,11 +6,12 @@ import java.util.List;
 
 public class DefaultRepositoryImpl<T> implements DefaultRepository<T> {
     @Override
-    public void save(T entity) {
+    public T save(T entity) {
 //        Session session = DataSource.getInstance().getSession();
 //        Transaction transaction = session.beginTransaction();
 //        session.saveOrUpdate(entity);
 //        transaction.commit();
+        return entity;
     }
 
     @Override

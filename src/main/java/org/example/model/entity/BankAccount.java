@@ -1,11 +1,12 @@
 package org.example.model.entity;
 
-public class Account {
+public class BankAccount {
     private Integer id;
     private String name;
     private Integer amount;
+    private Employee employee;
 
-    public Account() {
+    public BankAccount() {
     }
 
     public Integer getId() {
@@ -30,5 +31,22 @@ public class Account {
 
     public void setAmount(Integer amount) {
         this.amount = amount;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+
+    @Override
+    public String toString() {
+        return "BankAccount{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", amount=" + amount +
+                '}';
     }
 }

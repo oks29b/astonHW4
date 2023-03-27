@@ -5,28 +5,50 @@ import org.example.model.entity.Department;
 import org.example.model.entity.Employee;
 import org.example.model.repository.EmployeeRepository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EmployeeRepositoryImpl implements EmployeeRepository {
     @Override
-    public void save(Employee entity) {
-        String sql = "insert into employees (name, surname, salary, department_id) values (?, ?, ?, ?)";
-        try(Connection connection = ConnectionPool.getInstance().getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+    public Employee save(Employee entity) {
+        String employeeSql = "insert into employees (name, surname, salary) values (?, ?, ?)";
+        String deptSql = "insert into department_employee (emloyee_id, department_id) values (?, ?)";
+        Connection connection =  ConnectionPool.getInstance().getConnection();;
+        try(connection;
+            PreparedStatement emplPreparedStatement = connection.prepareStatement(employeeSql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement deptPreparedStatement = connection.prepareStatement(deptSql)
+            ){
 
-            preparedStatement.setString(1, entity.getName());
-            preparedStatement.setString(2, entity.getSurname());
-            preparedStatement.setInt(3, entity.getSalary());
-            preparedStatement.setInt(4, entity.getDepartment().getId());
+            connection.setAutoCommit(false);
 
-            preparedStatement.executeUpdate();
+            emplPreparedStatement.setString(1, entity.getName());
+            emplPreparedStatement.setString(2, entity.getSurname());
+            emplPreparedStatement.setInt(3, entity.getSalary());
+            emplPreparedStatement.executeUpdate();
+            ResultSet resultSet = emplPreparedStatement.getGeneratedKeys();
+
+            if(resultSet.next()){
+                entity.setId(resultSet.getInt(1));
+            }
+
+            for(Department department : entity.getDepartments()){
+                deptPreparedStatement.setInt(1, entity.getId());
+                deptPreparedStatement.setInt(2, department.getId());
+                deptPreparedStatement.executeUpdate();
+            }
+
+            connection.commit();
+
+            return entity;
         }catch (SQLException e){
-            throw new RuntimeException();
+            e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            throw new RuntimeException(e);
         }
     }
 
@@ -52,12 +74,13 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
                 department.setMaxSalary(resultSet.getInt("max_salary"));
                 department.setMinSalary(resultSet.getInt("min_salary"));
 
-                employee.setDepartment(department);
+//                employee.setDepartment(department);
             }
         }catch (SQLException e){
             throw new RuntimeException();
         }
         return employee;
+
     }
 
     @Override
@@ -98,7 +121,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
                 department.setMaxSalary(resultSet.getInt("max_salary"));
                 department.setMinSalary(resultSet.getInt("min_salary"));
 
-                employee.setDepartment(department);
+//                employee.setDepartment(department);
 
                 result.add(employee);
             }
@@ -119,7 +142,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             preparedStatement.setString(1, entity.getName());
             preparedStatement.setString(2, entity.getSurname());
             preparedStatement.setInt(3, entity.getSalary());
-            preparedStatement.setInt(4, entity.getDepartment().getId());
+//            preparedStatement.setInt(4, entity.getDepartment().getId());
             preparedStatement.setInt(5, entity.getId());
             int result = preparedStatement.executeUpdate();
             if (result < 1){
