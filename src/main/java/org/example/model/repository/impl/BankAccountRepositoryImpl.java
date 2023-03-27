@@ -108,14 +108,15 @@ public class BankAccountRepositoryImpl implements BankAccountRepository {
 
     @Override
     public BankAccount update(BankAccount entity) {
-        String sql = "update bankAccounts set name=?, amount=? where id=?";
+        String sql = "update bankAccounts set name=?, amount=?, employee_id=(select id from employees where id=?) where id=?";
         try(
             Connection connection = ConnectionPool.getInstance().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ){
             preparedStatement.setString(1, entity.getName());
             preparedStatement.setInt(2, entity.getAmount());
-            preparedStatement.setInt(3, entity.getId());
+            preparedStatement.setInt(3, entity.getEmployee().getId());
+            preparedStatement.setInt(4, entity.getId());
             int result = preparedStatement.executeUpdate();
             if (result < 1){
                 throw new SQLException("Account doesn't update");
