@@ -65,18 +65,14 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         List<Department> departmentList = new ArrayList<>();
         List<BankAccount> bankAccountList = new ArrayList<>();
 
-        Connection connection =  ConnectionPool.getInstance().getConnection();
-
-        try(connection;
+        try(Connection connection =  ConnectionPool.getInstance().getConnection();
                 PreparedStatement emplPreparedStatement = connection.prepareStatement(employeeSql);
                 PreparedStatement deptPreparedStatement = connection.prepareStatement(departmentSql);
                 PreparedStatement bankAccPreparesStatement = connection.prepareStatement(bankAccontSql);
         ){
-            connection.setAutoCommit(false);
-
             emplPreparedStatement.setInt(1,id);
-            deptPreparedStatement.setInt(2, id);
-            bankAccPreparesStatement.setInt(3, id);
+            deptPreparedStatement.setInt(1, id);
+            bankAccPreparesStatement.setInt(1, id);
 
             ResultSet resultSetEmps = emplPreparedStatement.executeQuery();
             while (resultSetEmps.next()) {
@@ -91,8 +87,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
                 Department department = new Department();
                 department.setId(resultSetDepts.getInt("id"));
                 department.setName(resultSetDepts.getString("name"));
-                department.setId(resultSetDepts.getInt("min_salary"));
-                department.setId(resultSetDepts.getInt("max_salary"));
+                department.setMinSalary(resultSetDepts.getInt("min_salary"));
+                department.setMaxSalary(resultSetDepts.getInt("max_salary"));
                 departmentList.add(department);
             }
 
@@ -108,14 +104,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             employee.setDepartments(departmentList);
             employee.setBankAccounts(bankAccountList);
 
-            connection.commit();
         }catch (SQLException e){
             e.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
             throw new RuntimeException(e);
         }
         return employee;
@@ -173,7 +163,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
     @Override
     public Employee update(Employee entity) {
         String employeeSql = "update employees set name=?, surname=?, salary=? where id=?";
-        String deptSql = "update department_employee set emloyee_id=?, department_id=?";
+        String deptSql = "update department_employee set emloyee_id=?, department_id=? where employee_id=?";
 
         Connection connection =  ConnectionPool.getInstance().getConnection();
 

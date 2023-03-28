@@ -108,7 +108,7 @@ public class BankAccountRepositoryImpl implements BankAccountRepository {
 
     @Override
     public BankAccount update(BankAccount entity) {
-        String sql = "update bankAccounts set name=?, amount=?, employee_id=(select id from employees where id=?) where id=?";
+        String sql = "update bankAccounts set name=?, amount=?, employee_id=? where id=?";
         try(
             Connection connection = ConnectionPool.getInstance().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)

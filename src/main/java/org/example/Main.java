@@ -18,8 +18,8 @@ public class Main {
     static EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
 
     static DepartmentRepository departmentRepository = new DepartmentRepositoryImpl();
-
     static BankAccountRepository bankAccountRepository = new BankAccountRepositoryImpl();
+
     public static void main(String[] args) throws SQLException {
 
 //        BankAccount bankAccount = new BankAccount();
@@ -31,6 +31,7 @@ public class Main {
         bankAccount2.setId(2);
         bankAccount2.setName("vtory");
         bankAccount2.setAmount(200);
+        bankAccount2.setEmployee(employeeRepository.findById(5));
 //
 //        List<BankAccount> bankAccounts = new ArrayList<>();
 //        bankAccounts.add(bankAccount);
@@ -57,9 +58,10 @@ public class Main {
 //        bankAccountRepository.save(bankAccount);
 
 
-            System.out.println(bankAccountRepository.update(bankAccount2));
 
+//            System.out.println(bankAccountRepository.update(bankAccount2));
 
+        System.out.println();
         System.out.println("Hello world!");
     }
 }
