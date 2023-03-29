@@ -3,6 +3,7 @@ package org.example.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.model.entity.Employee;
 import org.example.model.repository.EmployeeRepository;
+import org.example.model.repository.impl.EmployeeRepositoryImpl;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,33 +14,29 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @WebServlet("/employees")
 public class EmployeeController extends HttpServlet {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final EmployeeRepository employeeRepository;
-
-    public EmployeeController(EmployeeRepository employeeRepository) {
-        this.employeeRepository = employeeRepository;
-    }
+    private final EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        List<Employee> employees = employeeRepository.findAll();
-//        String employeeJson = objectMapper.writeValueAsString(employees);
-//        PrintWriter out = resp.getWriter();
-//        resp.setContentType("application/json");
-//        resp.setCharacterEncoding("UTF-8");
-//        out.print(employeeJson);
-//        out.flush();
-
-        PrintWriter out = resp.getWriter();
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-        out.print("employeeJson");
-        out.flush();
+        try{
+            Integer id = Integer.parseInt(req.getParameter("id"));
+            Employee employee = employeeRepository.findById(id).orElseThrow(()-> new NoSuchElementException());
+            String employeeJson = objectMapper.writeValueAsString(employee);
+            PrintWriter out = resp.getWriter();
+            resp.setContentType("application/json");
+            resp.setCharacterEncoding("UTF-8");
+            out.print(employeeJson);
+            out.flush();
+        }catch (NumberFormatException | NoSuchElementException e){
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        }
     }
 
     @Override

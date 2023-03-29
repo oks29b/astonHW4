@@ -1,5 +1,7 @@
 package org.example;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.model.entity.BankAccount;
 import org.example.model.entity.Department;
 import org.example.model.entity.Employee;
@@ -21,37 +23,38 @@ public class Main {
     static DepartmentRepository departmentRepository = new DepartmentRepositoryImpl();
     static BankAccountRepository bankAccountRepository = new BankAccountRepositoryImpl();
 
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws SQLException, JsonProcessingException {
 
 //        BankAccount bankAccount = new BankAccount();
 //        bankAccount.setId(1);
 //        bankAccount.setName("pervy");
 //        bankAccount.setAmount(100);
 //
-//        BankAccount bankAccount2 = new BankAccount();
-//        bankAccount2.setId(2);
-//        bankAccount2.setName("vtory");
-//        bankAccount2.setAmount(200);
+        BankAccount bankAccount2 = new BankAccount();
+        bankAccount2.setId(2);
+        bankAccount2.setName("vtory");
+        bankAccount2.setAmount(200);
 //        bankAccount2.setEmployee(employeeRepository.findById(5));
-//
-//        List<BankAccount> bankAccounts = new ArrayList<>();
+
+        List<BankAccount> bankAccounts = new ArrayList<>();
 //        bankAccounts.add(bankAccount);
-//        bankAccounts.add(bankAccount2);
+        bankAccounts.add(bankAccount2);
+
+        Department department = new Department();
+        department.setId(1);
+        department.setName("hr");
+        department.setMaxSalary(1000);
+        department.setMinSalary(100);
 //
-//        Department department = new Department();
-//        department.setId(1);
-//        department.setName("hr");
-//        department.setMaxSalary(1000);
-//        department.setMinSalary(100);
+        List<Department> departments = new ArrayList<>();
+        departments.add(department);
 //
-//        List<Department> departments = new ArrayList<>();
-//        departments.add(department);
-//
-//        Employee employee = new Employee();
-//        employee.setName("max");
-//        employee.setSurname("maximov");
-//        employee.setSalary(500);
-//        employee.setDepartments(departments);
+        Employee employee = new Employee();
+        employee.setName("max");
+        employee.setSurname("maximov");
+        employee.setSalary(500);
+        employee.setDepartments(departments);
+
 //
 //        departmentRepository.save(department);
 //
@@ -62,7 +65,7 @@ public class Main {
 
 //            System.out.println(bankAccountRepository.update(bankAccount2));
 
-        System.out.println(employeeRepository.findAll());
-        System.out.println("Hello world!");
+//        System.out.println(employeeRepository.findAll());
+        System.out.println(new ObjectMapper().writeValueAsString(employee));
     }
 }

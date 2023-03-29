@@ -1,4 +1,4 @@
-package repositoryTests;
+package org.example.repository;
 
 import org.example.config.db.ConnectionPool;
 import org.example.model.entity.Department;
@@ -83,7 +83,6 @@ public class EmployeeRepositoryImplTest {
         employee.get().setName("John");
         employee.get().setSurname("Doe");
         employee.get().setSalary(1000);
-
 
         Optional<Employee> testEmployee = employeeRepository.findById(1);
 

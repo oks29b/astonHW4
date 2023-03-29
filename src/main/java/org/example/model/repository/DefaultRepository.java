@@ -8,6 +8,5 @@ public interface DefaultRepository<T> {
     T save(T entity);
     Optional<T> findById(Integer id);
     boolean remove(Integer id);
-    List<T> findAll();
     T update(T entity);
 }

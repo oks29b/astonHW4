@@ -132,39 +132,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         }
     }
 
-
-    @Override
-    public List<Employee> findAll() {
-        String sql = "select * from employees";
-        List<Employee> result = new ArrayList<>();
-        try(
-            Connection connection = ConnectionPool.getInstance().getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sql)
-        ){
-            ResultSet resultSet = preparedStatement.executeQuery(sql);
-            while (resultSet.next()){
-                Employee employee = new Employee();
-                employee.setId(resultSet.getInt("id"));
-                employee.setName(resultSet.getString("name"));
-                employee.setSurname(resultSet.getString("surname"));
-                employee.setSalary(resultSet.getInt("salary"));
-//
-//                Department department = new Department();
-//                department.setId(resultSet.getInt("id"));
-//                department.setName(resultSet.getString("name"));
-//                department.setMaxSalary(resultSet.getInt("max_salary"));
-//                department.setMinSalary(resultSet.getInt("min_salary"));
-//
-//                employee.setDepartment(department);
-//
-                result.add(employee);
-            }
-        }catch (SQLException e){
-            throw new RuntimeException();
-        }
-        return result;
-    }
-
     @Override
     public Employee update(Employee entity) {
         String employeeSql = "update employees set name=?, surname=?, salary=? where id=?";

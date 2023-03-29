@@ -79,38 +79,6 @@ public class BankAccountRepositoryImpl implements BankAccountRepository {
     }
 
     @Override
-    public List<BankAccount> findAll() {
-        String sql = "select * from bankAccounts as ba left join employees as e on ba.employee_id=e.id";
-        List<BankAccount> result = new ArrayList<>();
-        try(
-            Connection connection = ConnectionPool.getInstance().getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sql)
-        ){
-            ResultSet resultSet = preparedStatement.executeQuery(sql);
-
-            while (resultSet.next()){
-                BankAccount bankAccount = new BankAccount();
-                bankAccount.setId(resultSet.getInt(1));
-                bankAccount.setName(resultSet.getString(2));
-                bankAccount.setAmount(resultSet.getInt(3));
-
-                Employee employee = new Employee();
-                employee.setId(resultSet.getInt(5));
-                employee.setName(resultSet.getString(6));
-                employee.setSurname(resultSet.getString(7));
-                employee.setSalary(resultSet.getInt(8));
-
-                bankAccount.setEmployee(employee);
-
-                result.add(bankAccount);
-            }
-        }catch (SQLException e){
-            throw new RuntimeException();
-        }
-        return result;
-    }
-
-    @Override
     public BankAccount update(BankAccount entity) {
         String sql = "update bankAccounts set name=?, amount=?, employee_id=? where id=?";
         try(

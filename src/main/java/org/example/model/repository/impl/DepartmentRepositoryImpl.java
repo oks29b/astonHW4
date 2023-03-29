@@ -118,30 +118,6 @@ public class DepartmentRepositoryImpl implements DepartmentRepository {
     }
 
     @Override
-    public List<Department> findAll() {
-        List<Department> result = new ArrayList<>();
-//        try{
-//            Connection connection = ConnectionPool.getInstance().getConnection();
-//            String sql = "select * from departments";
-//            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-//            ResultSet resultSet = preparedStatement.executeQuery();
-//            while (resultSet.next()){
-//                Department department = new Department();
-//                department.setId(resultSet.getInt("id"));
-//                department.setName(resultSet.getString("name"));
-//                department.setMaxSalary(resultSet.getInt("max_salary"));
-//                department.setMinSalary(resultSet.getInt("min_salary"));
-//                result.add(department);
-//            }
-//            preparedStatement.close();
-//            connection.close();
-//        }catch (SQLException e){
-//            throw new RuntimeException();
-//        }
-        return result;
-    }
-
-    @Override
     public Department update(Department entity) {
         String departmentSql = "update employees set name=?, max_salary=?, min_salary=? where id=?";
         String empsSql = "update department_employee set emloyee_id=?, department_id=? where employee_id=?";
