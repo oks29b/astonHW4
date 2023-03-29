@@ -62,7 +62,7 @@ public class Main {
 
 //            System.out.println(bankAccountRepository.update(bankAccount2));
 
-        System.out.println(employeeRepository.findById(4).orElseThrow());
+        System.out.println(employeeRepository.findAll());
         System.out.println("Hello world!");
     }
 }

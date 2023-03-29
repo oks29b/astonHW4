@@ -19,6 +19,14 @@ public class ConnectionPool {
     public static final String MAX_CONNECTION_POOL_SIZE_KEY = "db.connection.poolsize.max";
 
     private static ConnectionPool connectionPool = new ConnectionPool();
+
+    static {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
     private Properties properties;
     private static ComboPooledDataSource pooledDataSource;
     private ConnectionPool(){

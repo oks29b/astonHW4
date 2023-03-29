@@ -135,19 +135,19 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 
     @Override
     public List<Employee> findAll() {
-//        String sql = "select * from employees as e left join departments as d on e.department_id=d.id";
+        String sql = "select * from employees";
         List<Employee> result = new ArrayList<>();
-//        try(
-//            Connection connection = ConnectionPool.getInstance().getConnection();
-//            PreparedStatement preparedStatement = connection.prepareStatement(sql)
-//        ){
-//            ResultSet resultSet = preparedStatement.executeQuery(sql);
-//            while (resultSet.next()){
-//                Employee employee = new Employee();
-//                employee.setId(resultSet.getInt("id"));
-//                employee.setName(resultSet.getString("name"));
-//                employee.setSurname(resultSet.getString("surname"));
-//                employee.setSalary(resultSet.getInt("salary"));
+        try(
+            Connection connection = ConnectionPool.getInstance().getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)
+        ){
+            ResultSet resultSet = preparedStatement.executeQuery(sql);
+            while (resultSet.next()){
+                Employee employee = new Employee();
+                employee.setId(resultSet.getInt("id"));
+                employee.setName(resultSet.getString("name"));
+                employee.setSurname(resultSet.getString("surname"));
+                employee.setSalary(resultSet.getInt("salary"));
 //
 //                Department department = new Department();
 //                department.setId(resultSet.getInt("id"));
@@ -157,11 +157,11 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
 //
 //                employee.setDepartment(department);
 //
-//                result.add(employee);
-//            }
-//        }catch (SQLException e){
-//            throw new RuntimeException();
-//        }
+                result.add(employee);
+            }
+        }catch (SQLException e){
+            throw new RuntimeException();
+        }
         return result;
     }
 
