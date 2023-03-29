@@ -8,6 +8,7 @@ import org.example.model.repository.BankAccountRepository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class BankAccountRepositoryImpl implements BankAccountRepository {
     @Override
@@ -31,32 +32,34 @@ public class BankAccountRepositoryImpl implements BankAccountRepository {
     }
 
     @Override
-    public BankAccount findById(Integer id) {
+    public Optional<BankAccount> findById(Integer id) {
         String sql = "select * from bankAccounts as ba left join employees as e on ba.employee_id=e.id where ba.id=?";
-        BankAccount bankAccount = new BankAccount();
         try(
             Connection connection = ConnectionPool.getInstance().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ){
+            BankAccount bankAccount = new BankAccount();
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                bankAccount.setId(resultSet.getInt("id"));
-                bankAccount.setName(resultSet.getString("name"));
-                bankAccount.setAmount(resultSet.getInt("amount"));
+
+            if (resultSet.next()) {
+                bankAccount.setId(resultSet.getInt(1));
+                bankAccount.setName(resultSet.getString(2));
+                bankAccount.setAmount(resultSet.getInt(3));
 
                 Employee employee = new Employee();
-                employee.setId(resultSet.getInt("id"));
-                employee.setName(resultSet.getString("name"));
-                employee.setSurname(resultSet.getString("surname"));
-                employee.setSalary(resultSet.getInt("salary"));
+                employee.setId(resultSet.getInt(5));
+                employee.setName(resultSet.getString(6));
+                employee.setSurname(resultSet.getString(7));
+                employee.setSalary(resultSet.getInt(8));
 
                 bankAccount.setEmployee(employee);
+                return Optional.of(bankAccount);
             }
+            return Optional.empty();
         }catch (SQLException e){
             throw new RuntimeException();
         }
-        return bankAccount;
     }
 
     @Override
@@ -84,17 +87,18 @@ public class BankAccountRepositoryImpl implements BankAccountRepository {
             PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ){
             ResultSet resultSet = preparedStatement.executeQuery(sql);
+
             while (resultSet.next()){
                 BankAccount bankAccount = new BankAccount();
-                bankAccount.setId(resultSet.getInt("id"));
-                bankAccount.setName(resultSet.getString("name"));
-                bankAccount.setAmount(resultSet.getInt("amount"));
+                bankAccount.setId(resultSet.getInt(1));
+                bankAccount.setName(resultSet.getString(2));
+                bankAccount.setAmount(resultSet.getInt(3));
 
                 Employee employee = new Employee();
-                employee.setId(resultSet.getInt("id"));
-                employee.setName(resultSet.getString("name"));
-                employee.setSurname(resultSet.getString("surname"));
-                employee.setSalary(resultSet.getInt("salary"));
+                employee.setId(resultSet.getInt(5));
+                employee.setName(resultSet.getString(6));
+                employee.setSurname(resultSet.getString(7));
+                employee.setSalary(resultSet.getInt(8));
 
                 bankAccount.setEmployee(employee);
 

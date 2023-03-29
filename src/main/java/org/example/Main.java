@@ -13,6 +13,7 @@ import org.example.model.repository.impl.EmployeeRepositoryImpl;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class Main {
     static EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
@@ -27,11 +28,11 @@ public class Main {
 //        bankAccount.setName("pervy");
 //        bankAccount.setAmount(100);
 //
-        BankAccount bankAccount2 = new BankAccount();
-        bankAccount2.setId(2);
-        bankAccount2.setName("vtory");
-        bankAccount2.setAmount(200);
-        bankAccount2.setEmployee(employeeRepository.findById(5));
+//        BankAccount bankAccount2 = new BankAccount();
+//        bankAccount2.setId(2);
+//        bankAccount2.setName("vtory");
+//        bankAccount2.setAmount(200);
+//        bankAccount2.setEmployee(employeeRepository.findById(5));
 //
 //        List<BankAccount> bankAccounts = new ArrayList<>();
 //        bankAccounts.add(bankAccount);
@@ -61,7 +62,7 @@ public class Main {
 
 //            System.out.println(bankAccountRepository.update(bankAccount2));
 
-        System.out.println();
+        System.out.println(employeeRepository.findById(4).orElseThrow());
         System.out.println("Hello world!");
     }
 }

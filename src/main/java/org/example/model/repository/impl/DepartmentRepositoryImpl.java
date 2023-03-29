@@ -8,6 +8,7 @@ import org.example.model.repository.DepartmentRepository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class DepartmentRepositoryImpl implements DepartmentRepository {
     @Override
@@ -57,7 +58,7 @@ public class DepartmentRepositoryImpl implements DepartmentRepository {
     }
 
     @Override
-    public Department findById(Integer id) {
+    public Optional<Department> findById(Integer id) {
         String deptSql = "select * from departments where id=?";
         String empsSql = "select e.id, e.name, e.surname, e.salary from department_employee as de left join employees as e on de.emloyee_id=e.id where de.department_id=?;";
 
@@ -72,29 +73,32 @@ public class DepartmentRepositoryImpl implements DepartmentRepository {
             empsPrepStat.setInt(1, id);
 
             ResultSet deptsResultSet = deptsPrepStat.executeQuery();
-            while(deptsResultSet.next()){
+            if (deptsResultSet.next()){
                 department.setId(deptsResultSet.getInt("id"));
                 department.setName(deptsResultSet.getString("name"));
                 department.setMaxSalary(deptsResultSet.getInt("max_salary"));
                 department.setMinSalary(deptsResultSet.getInt("min_salary"));
-            }
 
-            ResultSet empsResultSet = empsPrepStat.executeQuery();
-            while (empsResultSet.next()){
-                Employee employee = new Employee();
-                employee.setId(empsResultSet.getInt("id"));
-                employee.setName(empsResultSet.getString("name"));
-                employee.setSurname(empsResultSet.getString("surname"));
-                employee.setSalary(empsResultSet.getInt("salary"));
-                employeeList.add(employee);
-            }
 
-            department.setEmployees(employeeList);
+                ResultSet empsResultSet = empsPrepStat.executeQuery();
+                while (empsResultSet.next()){
+                    Employee employee = new Employee();
+                    employee.setId(empsResultSet.getInt("id"));
+                    employee.setName(empsResultSet.getString("name"));
+                    employee.setSurname(empsResultSet.getString("surname"));
+                    employee.setSalary(empsResultSet.getInt("salary"));
+                    employeeList.add(employee);
+                }
+
+                department.setEmployees(employeeList);
+                return Optional.of(department);
+            }else {
+                return Optional.empty();
+            }
         }catch(SQLException e){
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-        return department;
     }
 
     @Override

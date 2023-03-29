@@ -9,6 +9,7 @@ import org.example.model.repository.EmployeeRepository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class EmployeeRepositoryImpl implements EmployeeRepository {
     @Override
@@ -57,10 +58,11 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
     }
 
     @Override
-    public Employee findById(Integer id) {
+    public Optional<Employee> findById(Integer id) {
         String employeeSql = "select * from employees where id=?";
         String departmentSql = "select d.id, d.name, min_salary, max_salary from department_employee as de left join departments as d on de.department_id=d.id where de.emloyee_id=?";
         String bankAccontSql = "select ba.id, ba.name, amount from bankAccounts as ba right join employees as e on ba.employee_id=e.id where employee_id=?";
+
         Employee employee = new Employee();
         List<Department> departmentList = new ArrayList<>();
         List<BankAccount> bankAccountList = new ArrayList<>();
@@ -75,40 +77,43 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             bankAccPreparesStatement.setInt(1, id);
 
             ResultSet resultSetEmps = emplPreparedStatement.executeQuery();
-            while (resultSetEmps.next()) {
+
+            if (resultSetEmps.next()) {
                 employee.setId(resultSetEmps.getInt("id"));
                 employee.setName(resultSetEmps.getString("name"));
                 employee.setSurname(resultSetEmps.getString("surname"));
                 employee.setSalary(resultSetEmps.getInt("salary"));
+
+
+                ResultSet resultSetDepts = deptPreparedStatement.executeQuery();
+                while (resultSetDepts.next()){
+                    Department department = new Department();
+                    department.setId(resultSetDepts.getInt("id"));
+                    department.setName(resultSetDepts.getString("name"));
+                    department.setMinSalary(resultSetDepts.getInt("min_salary"));
+                    department.setMaxSalary(resultSetDepts.getInt("max_salary"));
+                    departmentList.add(department);
+                }
+
+                ResultSet resultSetBanAcc = bankAccPreparesStatement.executeQuery();
+                while(resultSetBanAcc.next()){
+                    BankAccount bankAccount = new BankAccount();
+                    bankAccount.setId(resultSetBanAcc.getInt("id"));
+                    bankAccount.setName(resultSetBanAcc.getString("name"));
+                    bankAccount.setAmount(resultSetBanAcc.getInt("amount"));
+                    bankAccountList.add(bankAccount);
+                }
+
+                employee.setDepartments(departmentList);
+                employee.setBankAccounts(bankAccountList);
+                return Optional.of(employee);
+            }else {
+                return Optional.empty();
             }
-
-            ResultSet resultSetDepts = deptPreparedStatement.executeQuery();
-            while (resultSetDepts.next()){
-                Department department = new Department();
-                department.setId(resultSetDepts.getInt("id"));
-                department.setName(resultSetDepts.getString("name"));
-                department.setMinSalary(resultSetDepts.getInt("min_salary"));
-                department.setMaxSalary(resultSetDepts.getInt("max_salary"));
-                departmentList.add(department);
-            }
-
-            ResultSet resultSetBanAcc = bankAccPreparesStatement.executeQuery();
-            while(resultSetBanAcc.next()){
-                BankAccount bankAccount = new BankAccount();
-                bankAccount.setId(resultSetBanAcc.getInt("id"));
-                bankAccount.setName(resultSetBanAcc.getString("name"));
-                bankAccount.setAmount(resultSetBanAcc.getInt("amount"));
-                bankAccountList.add(bankAccount);
-            }
-
-            employee.setDepartments(departmentList);
-            employee.setBankAccounts(bankAccountList);
-
         }catch (SQLException e){
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-        return employee;
     }
 
     @Override

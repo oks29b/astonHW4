@@ -5,95 +5,90 @@ import org.example.model.entity.Department;
 import org.example.model.entity.Employee;
 import org.example.model.repository.EmployeeRepository;
 import org.example.model.repository.impl.EmployeeRepositoryImpl;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class EmployeeRepositoryImplTest {
-    @Mock
-    private ConnectionPool connectionPool;
+    EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
 
-    @Mock
-    private Connection connection;
+    @BeforeAll
+    static void createDB() {
+        try (InputStream is = EmployeeRepositoryImplTest.class.getClassLoader().getResourceAsStream("schema.sql");
+             Connection connection = ConnectionPool.getInstance().getConnection();
+             Statement statement = connection.createStatement();
+        ) {
+            String sql = new String(is.readAllBytes());
+            String deptSql = "insert into departments (name, max_salary, min_salary) values ('hr', 100, 200)";
+            statement.execute(sql);
+            statement.execute(deptSql);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-    @Mock
-    private PreparedStatement preparedStatement1;
+    @AfterAll
+    static  void removeDataFromDb(){
+        try (
+             Connection connection = ConnectionPool.getInstance().getConnection();
+             Statement statement = connection.createStatement();
+        ) {
+            String sql = "drop table department_employee, bankAccounts, employees, departments";
+            statement.execute(sql);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-    @Mock
-    private PreparedStatement preparedStatement2;
+    @Test
+    void testSave(){
+        Employee employee = new Employee();
+        employee.setName("John");
+        employee.setSurname("Doe");
+        employee.setSalary(1000);
 
-    @Mock
-    private ResultSet resultSet;
+        Department department = new Department();
+        department.setId(1);
+        department.setName("Department 1");
+        List<Department> departments = new ArrayList<>();
+        departments.add(department);
+        employee.setDepartments(departments);
 
-    @InjectMocks
-    private EmployeeRepositoryImpl employeeRepository;
+        int id = employeeRepository.save(employee).getId();
 
-//    @Test
-//    void testSave() throws Exception {
-//        // Arrange
-//        MockitoAnnotations.openMocks(this);
-//        Employee employee = new Employee();
-//        employee.setId(1);
-//        employee.setName("John");
-//        employee.setSurname("Doe");
-//        employee.setSalary(1000);
-//
-//        Department department = new Department();
-//        department.setId(1);
-//        department.setName("Department 1");
-//        List<Department> departments = new ArrayList<>();
-//        departments.add(department);
-//        employee.setDepartments(departments);
-//
-//        when(ConnectionPool.getInstance().getConnection()).thenReturn(connection);
-//        when(connection.prepareStatement(anyString(), eq(Statement.RETURN_GENERATED_KEYS))).thenReturn(preparedStatement1);
-//        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement2);
-//        when(preparedStatement1.executeUpdate()).thenReturn(1);
-//        when(preparedStatement1.getGeneratedKeys()).thenReturn(resultSet);
-//        when(resultSet.next()).thenReturn(true);
-//        when(resultSet.getInt(1)).thenReturn(1);
-//
-//        // Act
-//        Employee savedEmployee = employeeRepository.save(employee);
-//
-//        // Assert
-//        assertNotNull(savedEmployee);
-//        assertEquals(employee.getId(), savedEmployee.getId());
-//        assertEquals(employee.getName(), savedEmployee.getName());
-//        assertEquals(employee.getSurname(), savedEmployee.getSurname());
-//        assertEquals(employee.getSalary(), savedEmployee.getSalary());
-//        verify(ConnectionPool.getInstance().getConnection());
-//        verify(connection).setAutoCommit(false);
-//        verify(preparedStatement1).setString(1, employee.getName());
-//        verify(preparedStatement1).setString(2, employee.getSurname());
-//        verify(preparedStatement1).setInt(3, employee.getSalary());
-//        verify(preparedStatement1).executeUpdate();
-//        verify(preparedStatement1).getGeneratedKeys();
-//        verify(resultSet).next();
-//        verify(resultSet).getInt(1);
-//        verify(preparedStatement2).setInt(1, employee.getId());
-//        verify(preparedStatement2).setInt(2, department.getId());
-//        verify(preparedStatement2).executeUpdate();
-//        verify(connection).commit();
-//        verify(preparedStatement1).close();
-//        verify(preparedStatement2).close();
-//        verify(connection).close();
-//    }
+        Optional<Employee> employee1 = employeeRepository.findById(id);
 
+        assertNotNull(employee1);
+        assertEquals(employee.getName(), employee1.get().getName());
+    }
+
+    @Test
+    void findByIdTest(){
+        Optional<Employee> employee = Optional.of(new Employee());
+        employee.get().setId(1);
+        employee.get().setName("John");
+        employee.get().setSurname("Doe");
+        employee.get().setSalary(1000);
+
+
+        Optional<Employee> testEmployee = employeeRepository.findById(1);
+
+        assertNotNull(testEmployee);
+        assertEquals(employee.get().getId(), testEmployee.get().getId());
+    }
 
 }
