@@ -2,7 +2,6 @@ package org.example.config.db;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,18 +30,6 @@ public class ConnectionPool {
     private static ComboPooledDataSource pooledDataSource;
     private ConnectionPool(){
         properties = new Properties();
-//        try(InputStream inputStream = new FileInputStream(FILE_PATH)){
-//            properties.load(inputStream);
-//            pooledDataSource = new ComboPooledDataSource();
-//            pooledDataSource.setJdbcUrl(properties.getProperty(DB_URL_KEY));
-//            pooledDataSource.setUser(properties.getProperty(DB_USERNAME_KEY));
-//            pooledDataSource.setPassword(properties.getProperty(DB_PASSWORD_KEY));
-//            pooledDataSource.setMaxPoolSize(Integer.parseInt(properties.getProperty(MAX_CONNECTION_POOL_SIZE_KEY)));
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
         try(InputStream inputStream = ConnectionPool.class.getClassLoader().getResourceAsStream("db.properties")){
             properties.load(inputStream);

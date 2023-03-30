@@ -2,6 +2,7 @@ package org.example.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.config.db.ConnectionPool;
+import org.example.model.entity.Department;
 import org.example.model.entity.Employee;
 import org.example.model.repository.EmployeeRepository;
 import org.example.repository.EmployeeRepositoryImplTest;
@@ -9,12 +10,13 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -22,7 +24,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static org.mockito.Mockito.*;
 
@@ -70,16 +73,6 @@ class EmployeeControllerTest {
 
     @Test
     void doGet() throws IOException, ServletException {
-//        Employee mockEmployee = new Employee();
-//        mockEmployee.setId(1);
-//        mockEmployee.setName("John");
-//        mockEmployee.setSurname("Doe");
-//        mockEmployee.setSalary(1000);
-//        mockEmployee.setDepartments(new ArrayList<>());
-//        mockEmployee.setBankAccounts(new ArrayList<>());
-
-//        when(employeeRepository.findById(1)).thenReturn(Optional.of(mockEmployee));
-
         when(req.getParameter("id")).thenReturn("1");
 
         PrintWriter writer = mock(PrintWriter.class);
@@ -97,6 +90,40 @@ class EmployeeControllerTest {
     }
 
     @Test
-    void doPost() {
+    void doPost() throws IOException, ServletException {
+        // Arrange
+        BufferedReader mockReader = mock(BufferedReader.class);
+        Employee savedEmployee = new Employee();
+        savedEmployee.setName("John");
+        savedEmployee.setSurname("Doe");
+        savedEmployee.setSalary(1000);
+
+        Department department = new Department();
+        department.setName("Department 1");
+        List<Department> departments = new ArrayList<>();
+        departments.add(department);
+        savedEmployee.setDepartments(departments);
+
+        PrintWriter mockWriter = mock(PrintWriter.class);
+
+        String jsonBody = "{ \"id\": 1, \"name\":\"John\", \"surname\": \"Doe\", \"salary\": 500 }";
+
+        // Set up mock objects
+        when(req.getReader()).thenReturn(mockReader);
+        when(mockReader.lines()).thenReturn(Stream.of(jsonBody));
+        when(employeeRepository.save(any(Employee.class))).thenReturn(savedEmployee);
+        when(resp.getWriter()).thenReturn(mockWriter);
+
+        // Act
+        employeeController.doPost(req, resp);
+
+        // Assert
+        verify(req).getReader();
+        verify(mockReader).lines();
+        verify(employeeRepository).save(any(Employee.class));
+        verify(resp).setStatus(HttpServletResponse.SC_OK);
+        verify(resp).setContentType("application/json");
+        verify(mockWriter).print(anyString());
+        verify(mockWriter).flush();
     }
 }

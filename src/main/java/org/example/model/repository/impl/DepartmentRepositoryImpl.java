@@ -13,7 +13,6 @@ import java.util.Optional;
 public class DepartmentRepositoryImpl implements DepartmentRepository {
     @Override
     public Department save(Department entity){
-//        String sql2 = "insert into departments (name, max_salary, min_salary) values (?, ?, ?)";
         String departmentSql = "insert into departments (name, max_salary, min_salary) values (?, ?, ?)";
         String empsSql = "insert into department_employee (emloyee_id, department_id) values (?, ?)";
 

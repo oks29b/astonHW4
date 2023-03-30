@@ -45,7 +45,7 @@ public class EmployeeRepositoryImplTest {
     static  void removeDataFromDb(){
         try (
              Connection connection = ConnectionPool.getInstance().getConnection();
-             Statement statement = connection.createStatement();
+             Statement statement = connection.createStatement()
         ) {
             String sql = "drop table department_employee, bankAccounts, employees, departments";
             statement.execute(sql);
