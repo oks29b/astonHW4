@@ -19,8 +19,18 @@ import java.util.stream.Collectors;
 @WebServlet("/employees")
 public class EmployeeController extends HttpServlet {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
+    private final ObjectMapper objectMapper;
+    private final EmployeeRepository employeeRepository;
+
+    public EmployeeController() {
+        objectMapper = new ObjectMapper();
+        employeeRepository = new EmployeeRepositoryImpl();
+    }
+
+    public EmployeeController(ObjectMapper objectMapper, EmployeeRepository employeeRepository) {
+        this.objectMapper = objectMapper;
+        this.employeeRepository = employeeRepository;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

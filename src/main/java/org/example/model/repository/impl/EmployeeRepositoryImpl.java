@@ -37,10 +37,12 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
                 entity.setId(resultSet.getInt(1));
             }
 
-            for(Department department : entity.getDepartments()){
-                deptPreparedStatement.setInt(1, entity.getId());
-                deptPreparedStatement.setInt(2, department.getId());
-                deptPreparedStatement.executeUpdate();
+            if(entity.getDepartments() != null) {
+                for (Department department : entity.getDepartments()) {
+                    deptPreparedStatement.setInt(1, entity.getId());
+                    deptPreparedStatement.setInt(2, department.getId());
+                    deptPreparedStatement.executeUpdate();
+                }
             }
 
             connection.commit();
@@ -152,10 +154,12 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
             emplPreparedStatement.setInt(4, entity.getId());
             emplPreparedStatement.executeUpdate();
 
-            for(Department department : entity.getDepartments()){
-                deptPreparedStatement.setInt(1, entity.getId());
-                deptPreparedStatement.setInt(2, department.getId());
-                deptPreparedStatement.executeUpdate();
+            if(entity.getDepartments() != null) {
+                for (Department department : entity.getDepartments()) {
+                    deptPreparedStatement.setInt(1, entity.getId());
+                    deptPreparedStatement.setInt(2, department.getId());
+                    deptPreparedStatement.executeUpdate();
+                }
             }
 
             connection.commit();

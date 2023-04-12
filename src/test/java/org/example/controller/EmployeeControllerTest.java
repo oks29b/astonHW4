@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.ServletException;
@@ -25,21 +26,22 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class EmployeeControllerTest {
-    EmployeeController employeeController = new EmployeeController();
 
     @Mock
     HttpServletRequest req;
     @Mock
     HttpServletResponse resp;
     private ObjectMapper objectMapper = new ObjectMapper();
-    @Mock
-    private EmployeeRepository employeeRepository;
+
+    private EmployeeRepository employeeRepository = Mockito.mock(EmployeeRepository.class);
+    EmployeeController employeeController = new EmployeeController(objectMapper, employeeRepository);
 
     @BeforeAll
     static void createDB() {
@@ -73,10 +75,19 @@ class EmployeeControllerTest {
 
     @Test
     void doGet() throws IOException, ServletException {
+        Employee savedEmployee = new Employee();
+        savedEmployee.setName("John");
+        savedEmployee.setSurname("Doe");
+        savedEmployee.setSalary(1000);
+
         when(req.getParameter("id")).thenReturn("1");
 
         PrintWriter writer = mock(PrintWriter.class);
+
+        when(employeeRepository.findById(1)).thenReturn(Optional.of(savedEmployee));
         when(resp.getWriter()).thenReturn(writer);
+        doNothing().when(resp).setContentType("application/json");
+        doNothing().when(resp).setCharacterEncoding("UTF-8");
 
         // Act
         employeeController.doGet(req, resp);
@@ -84,7 +95,7 @@ class EmployeeControllerTest {
         // Assert
         verify(resp).setContentType("application/json");
         verify(resp).setCharacterEncoding("UTF-8");
-        verify(writer).print("{\"id\":1,\"name\":\"John\",\"surname\":\"Doe\",\"salary\":1000,\"departments\":[],\"bankAccounts\":[]}");
+        verify(writer).print("{\"id\":null,\"name\":\"John\",\"surname\":\"Doe\",\"salary\":1000,\"departments\":null,\"bankAccounts\":null}");
         verify(writer).flush();
         verifyNoMoreInteractions(resp, writer);
     }
@@ -106,7 +117,7 @@ class EmployeeControllerTest {
 
         PrintWriter mockWriter = mock(PrintWriter.class);
 
-        String jsonBody = "{ \"id\": 1, \"name\":\"John\", \"surname\": \"Doe\", \"salary\": 500 }";
+        String jsonBody = "{\"id\": null, \"name\":\"John\", \"surname\": \"Doe\", \"salary\": 1000}";
 
         // Set up mock objects
         when(req.getReader()).thenReturn(mockReader);
@@ -120,7 +131,7 @@ class EmployeeControllerTest {
         // Assert
         verify(req).getReader();
         verify(mockReader).lines();
-        verify(employeeRepository).save(any(Employee.class));
+        verify(employeeRepository, times(1)).save(any(Employee.class));
         verify(resp).setStatus(HttpServletResponse.SC_OK);
         verify(resp).setContentType("application/json");
         verify(mockWriter).print(anyString());
