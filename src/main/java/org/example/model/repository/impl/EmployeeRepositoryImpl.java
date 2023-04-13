@@ -15,7 +15,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
     @Override
     public Employee save(Employee entity) {
         String employeeSql = "insert into employees (name, surname, salary) values (?, ?, ?)";
-        String deptSql = "insert into department_employee (emloyee_id, department_id) values (?, ?)";
+        String deptSql = "insert into department_employee (employee_id, department_id) values (?, ?)";
 
         Connection connection =  ConnectionPool.getInstance().getConnection();
 
@@ -62,7 +62,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
     @Override
     public Optional<Employee> findById(Integer id) {
         String employeeSql = "select * from employees where id=?";
-        String departmentSql = "select d.id, d.name, min_salary, max_salary from department_employee as de left join departments as d on de.department_id=d.id where de.emloyee_id=?";
+        String departmentSql = "select d.id, d.name, min_salary, max_salary from department_employee as de left join departments as d on de.department_id=d.id where de.employee_id=?";
         String bankAccontSql = "select ba.id, ba.name, amount from bankAccounts as ba right join employees as e on ba.employee_id=e.id where employee_id=?";
 
         Employee employee = new Employee();
@@ -137,7 +137,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
     @Override
     public Employee update(Employee entity) {
         String employeeSql = "update employees set name=?, surname=?, salary=? where id=?";
-        String deptSql = "update department_employee set emloyee_id=?, department_id=? where employee_id=?";
+        String deptSql = "update department_employee set employee_id=?, department_id=? where employee_id=?";
 
         Connection connection =  ConnectionPool.getInstance().getConnection();
 
@@ -158,6 +158,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
                 for (Department department : entity.getDepartments()) {
                     deptPreparedStatement.setInt(1, entity.getId());
                     deptPreparedStatement.setInt(2, department.getId());
+                    deptPreparedStatement.setInt(3, entity.getId());
                     deptPreparedStatement.executeUpdate();
                 }
             }

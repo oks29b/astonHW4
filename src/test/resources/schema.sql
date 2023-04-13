@@ -24,9 +24,9 @@ create table if not exists  bankAccounts(
 );
 
 create table if not exists department_employee(
-    emloyee_id int not null,
+    employee_id int not null,
     department_id int not null,
-    primary key (emloyee_id, department_id),
+    primary key (employee_id, department_id),
     foreign key (department_id) references departments(id),
-    foreign key (emloyee_id) references employees(id)
+    foreign key (employee_id) references employees(id)
 );

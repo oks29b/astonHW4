@@ -18,8 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EmployeeRepositoryImplTest {
     EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
@@ -32,8 +31,10 @@ public class EmployeeRepositoryImplTest {
         ) {
             String sql = new String(is.readAllBytes());
             String deptSql = "insert into departments (name, max_salary, min_salary) values ('hr', 100, 200)";
+            String empsSql = "insert into employees (name, surname, salary) values ('John', 'Doe', 500)";
             statement.execute(sql);
             statement.execute(deptSql);
+            statement.execute(empsSql);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (SQLException e) {
@@ -44,8 +45,8 @@ public class EmployeeRepositoryImplTest {
     @AfterAll
     static  void removeDataFromDb(){
         try (
-             Connection connection = ConnectionPool.getInstance().getConnection();
-             Statement statement = connection.createStatement()
+            Connection connection = ConnectionPool.getInstance().getConnection();
+            Statement statement = connection.createStatement()
         ) {
             String sql = "drop table department_employee, bankAccounts, employees, departments";
             statement.execute(sql);
@@ -88,6 +89,59 @@ public class EmployeeRepositoryImplTest {
 
         assertNotNull(testEmployee);
         assertEquals(employee.get().getId(), testEmployee.get().getId());
+    }
+
+    @Test
+    void updateTest(){
+        Employee employee = new Employee();
+        employee.setName("John");
+        employee.setSurname("Marks");
+        employee.setSalary(1000);
+
+        Department department = new Department();
+        department.setId(1);
+        department.setName("Department 1");
+        List<Department> departments = new ArrayList<>();
+        departments.add(department);
+        employee.setDepartments(departments);
+
+        employee = employeeRepository.save(employee);
+
+        // Verify that the employee was inserted
+        assertNotNull(employee.getId());
+
+        // Update the employee's information
+        employee.setName("Jane");
+        employee.setSurname("Doe");
+        employee.setSalary(60000);
+        employee.setDepartments(departments);
+
+        Employee updatedEmpl = employeeRepository.update(employee);
+
+        // Verify that the employee was updated
+        assertNotNull(updatedEmpl);
+        assertEquals(employee.getId(), updatedEmpl.getId());
+        assertEquals(employee.getName(), updatedEmpl.getName());
+        assertEquals(employee.getSurname(), updatedEmpl.getSurname());
+        assertEquals(employee.getSalary(), updatedEmpl.getSalary());
+    }
+
+    @Test
+    void removeTest(){
+        Employee employee = new Employee();
+        employee.setName("John");
+        employee.setSurname("Doe");
+        employee.setSalary(1000);
+        int id = employeeRepository.save(employee).getId();
+
+        // Verify that the employee was inserted
+        assertNotNull(id);
+
+        // Remove the employee from the database
+        boolean removed = employeeRepository.remove(id);
+
+        // Verify that the employee was removed
+        assertTrue(removed);
     }
 
 }
