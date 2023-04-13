@@ -14,7 +14,7 @@ public class DepartmentRepositoryImpl implements DepartmentRepository {
     @Override
     public Department save(Department entity){
         String departmentSql = "insert into departments (name, max_salary, min_salary) values (?, ?, ?)";
-        String empsSql = "insert into department_employee (emloyee_id, department_id) values (?, ?)";
+        String empsSql = "insert into department_employee (employee_id, department_id) values (?, ?)";
 
         Connection connection =  ConnectionPool.getInstance().getConnection();
 
@@ -61,7 +61,7 @@ public class DepartmentRepositoryImpl implements DepartmentRepository {
     @Override
     public Optional<Department> findById(Integer id) {
         String deptSql = "select * from departments where id=?";
-        String empsSql = "select e.id, e.name, e.surname, e.salary from department_employee as de left join employees as e on de.emloyee_id=e.id where de.department_id=?;";
+        String empsSql = "select e.id, e.name, e.surname, e.salary from department_employee as de left join employees as e on de.employee_id=e.id where de.department_id=?;";
 
         Department department = new Department();
         List<Employee> employeeList = new ArrayList<>();
@@ -120,8 +120,8 @@ public class DepartmentRepositoryImpl implements DepartmentRepository {
 
     @Override
     public Department update(Department entity) {
-        String departmentSql = "update employees set name=?, max_salary=?, min_salary=? where id=?";
-        String empsSql = "update department_employee set emloyee_id=?, department_id=? where employee_id=?";
+        String departmentSql = "update departments set name=?, max_salary=?, min_salary=? where id=?";
+        String empsSql = "update department_employee set employee_id=?, department_id=? where employee_id=?";
 
         Connection connection =  ConnectionPool.getInstance().getConnection();
 
@@ -135,6 +135,7 @@ public class DepartmentRepositoryImpl implements DepartmentRepository {
             deptPreparedStatement.setString(1, entity.getName());
             deptPreparedStatement.setInt(2, entity.getMaxSalary());
             deptPreparedStatement.setInt(3, entity.getMinSalary());
+            deptPreparedStatement.setInt(4, entity.getId());
             deptPreparedStatement.executeUpdate();
 
             if(entity.getEmployees() != null) {

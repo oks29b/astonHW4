@@ -2,7 +2,6 @@ package org.example.repository;
 
 import org.example.config.db.ConnectionPool;
 import org.example.model.entity.BankAccount;
-import org.example.model.entity.Employee;
 import org.example.model.repository.BankAccountRepository;
 import org.example.model.repository.EmployeeRepository;
 import org.example.model.repository.impl.BankAccountRepositoryImpl;
@@ -18,8 +17,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BankAccountRepositoryTest {
     private BankAccountRepository bankAccountRepository = new BankAccountRepositoryImpl();
@@ -84,5 +82,51 @@ public class BankAccountRepositoryTest {
 
         assertNotNull(testBanAcc);
         assertEquals(bankAccount.get().getId(), testBanAcc.get().getId());
+    }
+
+    @Test
+    void removeTest(){
+        BankAccount bankAccount = new BankAccount();
+        bankAccount.setName("Account");
+        bankAccount.setAmount(6000);
+
+        EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
+        bankAccount.setEmployee(employeeRepository.findById(1).get());
+
+        int id = bankAccountRepository.save(bankAccount).getId();
+
+        // Verify that the bankAccount was inserted
+        assertNotNull(id);
+
+        // Remove the employee from the database
+        boolean removed = bankAccountRepository.remove(id);
+
+        // Verify that the employee was removed
+        assertTrue(removed);
+    }
+
+    @Test
+    void updateTest(){
+        BankAccount bankAccount = new BankAccount();
+        bankAccount.setName("Account");
+        bankAccount.setAmount(6000);
+
+        EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
+        bankAccount.setEmployee(employeeRepository.findById(1).get());
+
+        bankAccount = bankAccountRepository.save(bankAccount);
+
+        assertNotNull(bankAccount.getId());
+
+        bankAccount.setName("Second");
+        bankAccount.setAmount(100);
+
+        BankAccount updatedBankAccount = bankAccountRepository.update(bankAccount);
+
+        // Verify that the employee was updated
+        assertNotNull(updatedBankAccount);
+        assertEquals(bankAccount.getId(), updatedBankAccount.getId());
+        assertEquals(bankAccount.getName(), updatedBankAccount.getName());
+        assertEquals(bankAccount.getAmount(), updatedBankAccount.getAmount());
     }
 }
